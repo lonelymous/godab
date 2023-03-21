@@ -1,14 +1,14 @@
 package godab
 
 type DatabaseConfig struct {
-	Type     string `json:"type"`
+	Driver   string `json:"driver"`
 	Name     string `json:"name"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-func (this *DatabaseConfig) GetType() string {
-	return this.Type
+func (this *DatabaseConfig) GetDriver() string {
+	return this.Driver
 }
 
 func (this *DatabaseConfig) GetConnectionString() string {
