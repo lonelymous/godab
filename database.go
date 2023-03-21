@@ -2,6 +2,7 @@ package godab
 
 import (
 	"github.com/jmoiron/sqlx"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var Database *sqlx.DB
