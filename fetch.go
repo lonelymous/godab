@@ -65,9 +65,9 @@ func FetchXRowsToSlice[T any](rows *sqlx.Rows, result *[]interface{}) error {
 	return nil
 }
 
-func FetchXRowsToMap[T any](rows *sqlx.Rows, result map[string]interface{}) error {
+func FetchXRowsToMap[T any](rows *sqlx.Rows, result *map[string]interface{}) error {
 
-	err := rows.MapScan(result)
+	err := rows.MapScan(*result)
 	if err != nil {
 		return err
 	}
