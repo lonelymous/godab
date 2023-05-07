@@ -2,7 +2,6 @@ package godab
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strings"
 
@@ -43,24 +42,22 @@ func OpenAndCreate(databaseConfig *DatabaseConfig, filename string) (err error) 
 	for fileScanner.Scan() {
 		l := strings.TrimSpace(fileScanner.Text())
 
-		if line == "" || strings.HasPrefix(l, "--") {
+		if l == "" || strings.HasPrefix(l, "--") {
 			continue
 		}
 
 		line = line + l
 
 		if l[len(l)-1:] == ";" {
-			Database.Exec(line)
+			_, err := Database.Exec(line)
+			if err != nil {
+				return err
+			}
 			line = ""
 		}
 	}
 
-	err = sqlFile.Close()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return nil
+	return sqlFile.Close()
 }
 
 // Close connection on database //defer it.
