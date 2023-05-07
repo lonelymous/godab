@@ -29,6 +29,12 @@ func OpenAndCreate(databaseConfig *DatabaseConfig, filename string) (err error) 
 		return err
 	}
 
+	// Check if database is exists
+	_, err = Database.Exec("USE " + databaseConfig.Name)
+	if err == nil {
+		return nil
+	}
+
 	sqlFile, err := os.Open(filename)
 	if err != nil {
 		return err
