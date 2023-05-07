@@ -14,3 +14,7 @@ func (this *DatabaseConfig) GetDriver() string {
 func (this *DatabaseConfig) GetConnectionString() string {
 	return this.Username + ":" + this.Password + "@/" + this.Name + "?parseTime=true"
 }
+
+func (this *DatabaseConfig) GetConnectionStringWithoutDatabase() string {
+	return this.Username + ":" + this.Password + "@/?parseTime=true"
+}

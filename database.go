@@ -15,7 +15,7 @@ func OpenConnection(databaseConfig *DatabaseConfig) (err error) {
 }
 
 func Open(databaseConfig *DatabaseConfig) (err error) {
-	Database, err = sqlx.Open(databaseConfig.GetDriver(), databaseConfig.GetConnectionString())
+	Database, err = sqlx.Open(databaseConfig.GetDriver(), databaseConfig.GetConnectionStringWithoutDatabase())
 	return err
 }
 
