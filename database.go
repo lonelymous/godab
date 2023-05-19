@@ -38,20 +38,23 @@ func OpenAndCreate(databaseConfig *DatabaseConfig, filename string) (*sqlx.DB, e
 		return nil, err
 	}
 
-	sqlLines, err := ReadSQL(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, sql := range sqlLines {
-		_, err := Database.Exec(sql)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	_, err = Database.Exec("USE " + databaseConfig.Name)
 	if err != nil {
+		if strings.Contains(err.Error(), "Unknown database") {
+			sqlLines, err := ReadSQL(filename)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, sql := range sqlLines {
+				_, err := Database.Exec(sql)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			_, err = Database.Exec("USE " + databaseConfig.Name)
+		}
 		return nil, err
 	}
 
