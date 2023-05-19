@@ -12,38 +12,70 @@ import (
 var Database *sqlx.DB
 
 // Connection
-// Open connection on database.
-func OpenConnection(databaseConfig *DatabaseConfig) (err error) {
+// Connect to database.
+func Connect(databaseConfig *DatabaseConfig) (*sqlx.DB, error) {
+	var err error
 	Database, err = sqlx.Connect(databaseConfig.GetDriver(), databaseConfig.GetConnectionString())
-	return err
+	return Database, err
 }
 
-func Open(databaseConfig *DatabaseConfig) (err error) {
+// Open connection on database.
+func Open(databaseConfig *DatabaseConfig) (*sqlx.DB, error) {
+	var err error
 	Database, err = sqlx.Open(databaseConfig.GetDriver(), databaseConfig.GetConnectionStringWithoutDatabase())
-	return err
+	return Database, err
 }
 
-func OpenAndCreate(databaseConfig *DatabaseConfig, filename string) (err error) {
-	err = Open(databaseConfig)
+// Open and create database from sql file.
+func OpenAndCreate(databaseConfig *DatabaseConfig, filename string) (*sqlx.DB, error) {
+	var err error
+
+	Database, err = sqlx.Open(
+		databaseConfig.GetDriver(),
+		databaseConfig.GetConnectionStringWithoutDatabase(),
+	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// Check if database is exists
-	_, err = Database.Exec("USE " + databaseConfig.Name)
-	if err == nil {
-		return nil
+	sqlLines, err := ReadSQL(filename)
+	if err != nil {
+		return nil, err
 	}
+
+	for _, sql := range sqlLines {
+		_, err := Database.Exec(sql)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	_, err = Database.Exec("USE " + databaseConfig.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return Database, err
+}
+
+// Close connection on database //defer it.
+func CloseConnection() error {
+	return Database.Close()
+}
+
+// Read SQL file and return array of SQL query.
+func ReadSQL(filename string) ([]string, error) {
 
 	sqlFile, err := os.Open(filename)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	fileScanner := bufio.NewScanner(sqlFile)
 
 	fileScanner.Split(bufio.ScanLines)
 
+	lines := []string{}
 	line := ""
 	for fileScanner.Scan() {
 		l := strings.TrimSpace(fileScanner.Text())
@@ -55,18 +87,10 @@ func OpenAndCreate(databaseConfig *DatabaseConfig, filename string) (err error) 
 		line = line + l
 
 		if l[len(l)-1:] == ";" {
-			_, err := Database.Exec(line)
-			if err != nil {
-				return err
-			}
+			lines = append(lines, line)
 			line = ""
 		}
 	}
 
-	return sqlFile.Close()
-}
-
-// Close connection on database //defer it.
-func CloseConnection() error {
-	return Database.Close()
+	return lines, sqlFile.Close()
 }
