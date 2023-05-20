@@ -1,4 +1,4 @@
-#[Basic usage]
+# Basic usage
 
 I have a ServerConfig struct that contains the database config
 you can use your own struct or just pass the config directly
