@@ -30,21 +30,21 @@ func OpenAndCreate(filename string) (*sqlx.DB, error) {
 	var err error
 
 	Database, err := sqlx.Open(
-		ServerConfig.DatabaseConfig.GetDriver(),
-		ServerConfig.DatabaseConfig.GetConnectionStringWithoutDatabase(),
+		databaseConfig.GetDriver(),
+		databaseConfig.GetConnectionStringWithoutDatabase(),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = Database.Exec("USE " + ServerConfig.DatabaseConfig.Name)
+	_, err = Database.Exec("USE " + databaseConfig.Name)
 	if err != nil {
 		log.Println("Database exists? " + strconv.FormatBool(!strings.Contains(err.Error(), "Unknown database")))
 		if !strings.Contains(err.Error(), "Unknown database") {
 			return nil, err
 		}
 		log.Println("Read SQL file..")
-		sqlLines, err := godab.ReadSQL(filename)
+		sqlLines, err := ReadSQL(filename)
 		if err != nil {
 			return nil, err
 		}
