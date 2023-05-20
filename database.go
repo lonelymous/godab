@@ -26,7 +26,7 @@ func Open(databaseConfig *DatabaseConfig) (*sqlx.DB, error) {
 	return Database, err
 }
 // Open and create database from sql file.
-func OpenAndCreate(filename string) (*sqlx.DB, error) {
+func OpenAndCreate(databaseConfig *DatabaseConfig, filename string) (*sqlx.DB, error) {
 	var err error
 
 	Database, err := sqlx.Open(
