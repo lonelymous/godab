@@ -65,7 +65,7 @@ After the connection is established, you can use the db variable to execute quer
 
 ```
 
-    OR 
+OR 
 
 ```go
 
