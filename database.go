@@ -2,10 +2,10 @@ package godab
 
 import (
 	"bufio"
-	"os"
-	"strings"
-	"strconv"
 	"log"
+	"os"
+	"strconv"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -27,11 +27,12 @@ func Open(databaseConfig *DatabaseConfig) (*sqlx.DB, error) {
 	Database, err = sqlx.Open(databaseConfig.GetDriver(), databaseConfig.GetConnectionStringWithoutDatabase())
 	return Database, err
 }
+
 // Open and create database from sql file.
 func OpenAndCreate(databaseConfig *DatabaseConfig, filename string) (*sqlx.DB, error) {
 	var err error
 
-	Database, err := sqlx.Open(
+	Database, err = sqlx.Open(
 		databaseConfig.GetDriver(),
 		databaseConfig.GetConnectionStringWithoutDatabase(),
 	)
