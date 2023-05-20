@@ -25,39 +25,41 @@ func Open(databaseConfig *DatabaseConfig) (*sqlx.DB, error) {
 	Database, err = sqlx.Open(databaseConfig.GetDriver(), databaseConfig.GetConnectionStringWithoutDatabase())
 	return Database, err
 }
-
 // Open and create database from sql file.
-func OpenAndCreate(databaseConfig *DatabaseConfig, filename string) (*sqlx.DB, error) {
+func OpenAndCreate(filename string) (*sqlx.DB, error) {
 	var err error
 
-	Database, err = sqlx.Open(
-		databaseConfig.GetDriver(),
-		databaseConfig.GetConnectionStringWithoutDatabase(),
+	Database, err := sqlx.Open(
+		ServerConfig.DatabaseConfig.GetDriver(),
+		ServerConfig.DatabaseConfig.GetConnectionStringWithoutDatabase(),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = Database.Exec("USE " + databaseConfig.Name)
+	_, err = Database.Exec("USE " + ServerConfig.DatabaseConfig.Name)
 	if err != nil {
-		if strings.Contains(err.Error(), "Unknown database") {
-			sqlLines, err := ReadSQL(filename)
+		log.Println("Database exists? " + strconv.FormatBool(!strings.Contains(err.Error(), "Unknown database")))
+		if !strings.Contains(err.Error(), "Unknown database") {
+			return nil, err
+		}
+		log.Println("Read SQL file..")
+		sqlLines, err := godab.ReadSQL(filename)
+		if err != nil {
+			return nil, err
+		}
+
+		log.Println("Execute SQL file.." + strconv.Itoa(len(sqlLines)) + " lines")
+
+		for _, sql := range sqlLines {
+			_, err := Database.Exec(sql)
 			if err != nil {
 				return nil, err
 			}
-
-			for _, sql := range sqlLines {
-				_, err := Database.Exec(sql)
-				if err != nil {
-					return nil, err
-				}
-			}
-
-			_, err = Database.Exec("USE " + databaseConfig.Name)
+			log.Println("Executed: " + sql)
 		}
-		return nil, err
+		return Database, nil
 	}
-
 	return Database, err
 }
 
